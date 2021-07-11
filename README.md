@@ -24,6 +24,12 @@ Join our [discord server](https://discord.gg/2XzgH4bZYp) now!
    * Update Username / Profile Pic
    * Infinite Scroll On The Home Page
    * Password Recovery / Change
+   * Follow/Unfollow users
+   * Commenting And Replying To Comments
+   * Hashtags And Mentions
+   * Dark/Light Theme
+   * Public Profile For Each User With a profle pic
+   * Ajax Powered Likes/Dislikes with counter
    * 2 factor authentication
 
 ## New front-end
