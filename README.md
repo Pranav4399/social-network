@@ -22,6 +22,7 @@ Join our [discord server](https://discord.gg/2XzgH4bZYp) now!
    * Sign IN/UP/OUT
    * Post CRUD
    * Update Username / Profile Pic
+   * Notifications
    * Infinite Scroll On The Home Page
    * Password Recovery / Change
    * Follow/Unfollow users
