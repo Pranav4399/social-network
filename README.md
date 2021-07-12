@@ -24,6 +24,12 @@ Join our [discord server](https://discord.gg/2XzgH4bZYp) now!
    * Update Username / Profile Pic
    * Infinite Scroll On The Home Page
    * Password Recovery / Change
+   * Follow/Unfollow users
+   * Commenting And Replying To Comments
+   * Hashtags And Mentions
+   * Dark/Light Theme
+   * Public Profile For Each User With a profle pic
+   * Ajax Powered Likes/Dislikes with counter
    * 2 factor authentication
 
 ## New front-end
@@ -37,7 +43,7 @@ Links:
 Any feedback or suggestion is appreciated and can be sent to [margual56@gmail.com](margual56@gmail.com) or to the discord server.
 
  ## Set Up: 
-  * Clone The Repository `git clone https://github.com/privalise/social-network.git && cd privalise`
+  * Clone The Repository `git clone https://github.com/privalise/social-network.git && cd social-network`
   * Install Requirements `pip install -r requirements.txt && cd privalises`
   * Let's Migrate And Make Migrations `python manage.py makemigrations && python manage.py migrate`
   * Now Finally We Will Run The Server `python manage.py runserver`

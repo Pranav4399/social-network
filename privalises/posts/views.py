@@ -13,11 +13,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from .service import process_mentions_from_post_content
 import json
 class PostListView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         logged_in_user = request.user
-        posts = Post.objects.filter(author__profile__followers__in=[logged_in_user.id]).order_by('-date_posted')
+        #posts = Post.objects.filter(author__profile__followers__in=[logged_in_user.id]).order_by('-date_posted')
+        posts = Post.objects.all().order_by('-date_posted')
         form = PostForm()
         context = {'posts': posts, 'form': form,}
         return render(request, 'posts/post_list.html', context)
@@ -30,6 +32,7 @@ class PostListView(LoginRequiredMixin, View):
             new_post.author = request.user
             new_post.save()
             new_post.create_tags()
+            process_mentions_from_post_content(new_post)
         context = {'posts': posts, 'form': form,}
         return render(request, 'posts/post_list.html', context)
 @login_required
@@ -62,6 +65,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     context_object_name = 'content'
     def form_valid(self, form):
         form.instance.author = self.request.user
+        form.instance.save()
+        process_mentions_from_post_content(form.instance)
         return super().form_valid(form)
 '''
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -104,6 +109,8 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     fields = ['content', 'image']
     def form_valid(self, form):
         form.instance.author = self.request.user
+        form.instance.save()
+        process_mentions_from_post_content(form.instance)
         return super().form_valid(form)
     def test_func(self):
         post = self.get_object()
@@ -171,7 +178,7 @@ class AddCommentLike(LoginRequiredMixin, View):
         if not is_like:
             comment.likes.add(request.user)
         if is_like:
-            post.likes.remove(request.user)
+            comment.likes.remove(request.user)
         next = request.POST.get("next", '/')
         return HttpResponseRedirect(next)
 class AddCommentDislike(LoginRequiredMixin, View):
@@ -283,7 +290,6 @@ def AddLike(request):
             result = post.like_count
             post.save()
         return JsonResponse({'result': result, })
-
 @login_required
 def FavouritesList(request):
     new = Post.newmanager.filter(favourites=request.user)
@@ -298,6 +304,13 @@ def AddFavourites(request, id):
         post.favourites.add(request.user)
         messages.success(request, f'Post Is MarkaLised! Amazing :D')
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
+def get_profile_view_by_username(request, username):
+    if request.method == 'GET':
+        users = User.objects.filter(username=username)
+        if users:
+            return redirect('profile', pk=users[0].id)
+        return redirect('profile', pk=0)
+'''
 class AddFollower(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         profile = Profile.objects.get(pk=pk)

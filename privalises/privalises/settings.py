@@ -26,8 +26,10 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'posts.apps.PostsConfig',
     'users.apps.UsersConfig',
+    'api',
     'crispy_forms',
     'rest_framework',
+    'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -72,6 +74,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': str(BASE_DIR / 'db.sqlite3'),
     }
+}
+REST_FRAMEWORK = {  
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication', 
+    ], 
 }
 AUTH_PASSWORD_VALIDATORS = [
     {
