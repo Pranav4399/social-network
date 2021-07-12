@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post, Comment, Profile
+from .models import Post, Comment, Profile, Notification, Tag
 from django.views import View
 from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
@@ -53,6 +53,7 @@ def PostDetailView(request, pk):
             # Save the comment to the database
             new_comment.save()
             new_comment.create_tags()
+            notification = Notification.objects.create(notification_type=2, from_user=request.user, to_user=post.author, post=post)
             # commentToJson = json.dumps(new_comment.toJson(), indent=4)
             return JsonResponse({'comment': new_comment.content, 'date_created': new_comment.date_created, 'author': new_comment.author.username})
     else:
@@ -117,21 +118,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if self.request.user == post.author:
             return True
         return False
-@login_required
-def settings(request):
-    if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = ProfileUpdteForm(request.POST, request.FILES, instance=request.user.profile)
-        if u_form.is_valid() and p_form.is_valid():
-            u_form.save()
-            p_form.save()
-            messages.success(request, f'your account has been updated')
-            return redirect('home')
-    else:
-        u_form = UserUpdateForm(instance=request.user)
-        p_form = ProfileUpdteForm(instance=request.user.profile)
-    context = {'u_form': u_form, 'p_form': p_form}
-    return render(request, 'posts/settings.html', context)
 class ProfileView(LoginRequiredMixin, View):
     def get(self, request, pk, *args, **kwargs):
         profile = Profile.objects.get(pk=pk)
@@ -177,6 +163,7 @@ class AddCommentLike(LoginRequiredMixin, View):
                 break
         if not is_like:
             comment.likes.add(request.user)
+            notification = Notification.objects.create(notification_type=1, from_user=request.user, to_user=comment.author, comment=comment)
         if is_like:
             comment.likes.remove(request.user)
         next = request.POST.get("next", '/')
@@ -213,6 +200,7 @@ class CommentReply(LoginRequiredMixin, View):
             new_comment.post = post
             new_comment.parent = parent_comment
             new_comment.save()
+        notification = Notification.objects.create(notification_type=2, from_user=request.user, to_user=parent_comment.author, comment=new_comment)
         return redirect('post-detail', pk=post_pk)
 @ login_required
 def AddDislike(request):
@@ -289,7 +277,9 @@ def AddLike(request):
             post.like_count += 1
             result = post.like_count
             post.save()
+            notification = Notification.objects.create(notification_type=1, from_user=request.user, to_user=post.author, post=post)
         return JsonResponse({'result': result, })
+
 @login_required
 def FavouritesList(request):
     new = Post.newmanager.filter(favourites=request.user)
@@ -310,9 +300,33 @@ def get_profile_view_by_username(request, username):
         if users:
             return redirect('profile', pk=users[0].id)
         return redirect('profile', pk=0)
-'''
 class AddFollower(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         profile = Profile.objects.get(pk=pk)
         profile.followers.add(request.user)
+        notification = Notification.objects.create(notification_type=3, from_user=request.user, to_user=profile.user)
         return redirect('profile', pk=profile.pk)
+class PostNotification(View):
+    def get(self, request, notification_pk, post_pk, *args, **kwargs):
+        notification = Notification.objects.get(pk=notification_pk)
+        post = Post.objects.get(pk=post_pk)
+        notification.user_has_seen = True
+        notification.save()
+        return redirect('post-detail', pk=post_pk)
+class FollowNotification(View):
+    def get(self, request, notification_pk, profile_pk, *args, **kwargs):
+        notification = Notification.objects.get(pk=notification_pk)
+        profile = Profile.objects.get(pk=profile_pk)
+        notification.user_has_seen = True
+        notification.save()
+        return redirect('profile', pk=profile_pk)
+class RemoveNotification(View):
+    def delete(self, request, notification_pk, *args, **kwargs):
+        notification = Notification.objects.get(pk=notification_pk)
+        notification.user_has_seen = True
+        notification.save()
+        return HttpResponse('Success', content_type='text/plain')
+class ListNotifications(View):
+    def get(self, request, *args, **kwargs):
+        notifications = Notification.objects.filter(to_user=request.user)
+        return render(request, "posts/notifications.html", {'notifications': notifications})

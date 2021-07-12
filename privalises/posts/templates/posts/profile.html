@@ -20,27 +20,23 @@
              </button>
               <br/><br/>
             {% else %}
-              {% if is_following == False %}
-                 <form method="POST">
-                    {% csrf_token %}
-                    <button type="submit" id="follow-button" 
-                    value="{{ user.id }}" class="btn btn-outline-danger">Follow
-			            </button>
-			         </form>
-			         <br/><br/>
-             
+           {% if is_following == False %}
+            <form method="POST" action='{% url "add-follower" profile.pk %}'>
+               {% csrf_token %}
+               <button type="submit" class="btn btn-outline-danger">Follow</button>
+            </form>
+            <br/>
+            <br/>
             {% else %}
-                  <form method="POST" action='{% url "remove-follower" profile.id %}'>
-                   {% csrf_token %}
-            
-                   <button type="submit" class="btn btn-outline-danger">UnFollow</button>
-                  </form><br/><br/>
- 
-
+            <form method="POST" action='{% url "remove-follower" profile.pk %}'>
+            {% csrf_token %}
+               <button type="submit" class="btn btn-outline-danger">UnFollow</button>
+            </form>
+            <br/>
+            <br/>
              {% endif %}
             {% endif %}
 			</section>
-
 			<section class="posts">
 				{% for post in posts %}
 				<div class="post">

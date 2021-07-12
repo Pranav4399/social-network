@@ -1,6 +1,6 @@
 {% load static %}
 {% load crispy_forms_tags %}
-
+{% load custom_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -15,7 +15,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&family=Ubuntu:wght@300&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/logo.css' %}">
     <link rel="stylesheet" href="{% static 'css/home/scrollbar.css' %}">
@@ -47,9 +46,8 @@
             <span class="link-text">Search</span>
           </a>
         </li>
-
         <li class="nav-item">
-          <a href="/notifications" class="nav-link">
+          <a href="{% url 'notifications-list' %}" class="nav-link">
             <img src="{% static 'img/bell_black.png' %}" alt="Notifications link icon">
             <span class="link-text">Notifications</span>
           </a>
@@ -171,24 +169,6 @@
           },
           success: function (json) {
             document.getElementById("like_count").innerHTML = json['result']
-            console.log(json)
-          },
-          error: function (xhr, errmsg, err) {
-
-          }
-        });
-      })
-    </script>
-    <script>
-      $(document).on('click', '#follow-button', function (e) {
-        e.preventDefault();
-        var $formData = $(this).serialize()
-        $.ajax({
-          type: 'POST',
-          url: '{% url "add-follower" %}',
-          data: $formData,
-          success: function (json) {
-            document.getElementById("followers_count").innerHTML = json['result']
             console.log(json)
           },
           error: function (xhr, errmsg, err) {
