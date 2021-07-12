@@ -232,6 +232,7 @@ def AddDislike(request):
             result = post.like_count
             post.save()
         return JsonResponse({'result': result, })
+'''
 @login_required
 def AddFollower(request):
     result = ''
@@ -256,6 +257,7 @@ def AddFollower(request):
         result = user.followers_count
         user.save()
     return JsonResponse({'result': result, })
+'''
 @login_required
 def AddLike(request):
     if request.POST.get('action') == 'post':
@@ -296,12 +298,8 @@ def AddFavourites(request, id):
         post.favourites.add(request.user)
         messages.success(request, f'Post Is MarkaLised! Amazing :D')
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
-
-'''
 class AddFollower(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         profile = Profile.objects.get(pk=pk)
         profile.followers.add(request.user)
         return redirect('profile', pk=profile.pk)
-
-'''

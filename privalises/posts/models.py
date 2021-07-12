@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from PIL import Image
 import json
-
 class Post(models.Model):
     image = models.ImageField(blank=True, null=True, upload_to='post_image')
     content = models.TextField()
@@ -29,7 +28,6 @@ class Post(models.Model):
                     tag.save()
                     self.tags.add(tag.pk)
                 self.save()
-
         if self.shared_body:
             for word in self.shared_body.split():
                 if (word[0] == '#'):
@@ -66,11 +64,9 @@ class Comment(models.Model):
                     tag.save()
                     self.tags.add(tag.pk)
                 self.save()
-
     class Meta:
-        ordering = ['date_created']
+        ordering = ['-date_created']
     def __str__(self):
-        #author = self.user
         return '{} by {}'.format(self.content, self.author)
     @property
     def children(self):
@@ -97,15 +93,10 @@ class Profile(models.Model):
             output_size = (300, 300)
             img.thumbnail(output_size)
             img.save(self.image.path)
-
 class Tag(models.Model):
     name = models.CharField(max_length=255)
-
-
 class Image(models.Model):
     image = models.ImageField(upload_to='uploads/post_photos', blank=True, null=True)
-
-
 class Notification(models.Model):
     # 1 = Like, 2 = Comment, 3 = Follow, #4 = Mention
     notification_type = models.IntegerField()
